@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette */
+  --color-stone: #f3ebdd;
+  --color-surface: #fff8ec;
+  --color-espresso: #251b1c;
+  --color-plum: #713a56;
+  --color-terracotta: #c96745;
+  --color-sage: #71866b;
+  --color-mustard: #d5a340;
+  --color-line: #d8c7b4;
+
+  /* Typography */
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: clamp(2.5rem, 1.35rem + 3.9vw, 5rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.035em;
+  --text-display--font-weight: 700;
+
+  --text-section: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
+  --text-section--line-height: 1.08;
+  --text-section--letter-spacing: -0.028em;
+  --text-section--font-weight: 700;
+
+  --text-card: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+  --text-card--line-height: 1.25;
+  --text-card--letter-spacing: -0.015em;
+  --text-card--font-weight: 700;
+
+  --text-lead: clamp(1rem, 0.95rem + 0.34vw, 1.1875rem);
+  --text-lead--line-height: 1.62;
+
+  /* Hard pixel offset shadows */
+  --shadow-pixel-xs: 2px 2px 0 0 rgba(37, 27, 28, 0.16);
+  --shadow-pixel-sm: 3px 3px 0 0 rgba(37, 27, 28, 0.14);
+  --shadow-pixel: 3px 3px 0 0 rgba(37, 27, 28, 0.18);
+  --shadow-pixel-md: 5px 5px 0 0 rgba(37, 27, 28, 0.18);
+  --shadow-pixel-lg: 7px 7px 0 0 rgba(37, 27, 28, 0.2);
+
+  /* Restrained motion */
+  --animate-pixel-pulse: pixel-pulse 2.6s ease-in-out infinite;
+  --animate-caret: caret-blink 1.05s steps(1, end) infinite;
+  --animate-twinkle: twinkle 4.2s ease-in-out infinite;
+}
+
+@keyframes pixel-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.35;
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-stone);
+    color: var(--color-espresso);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-plum);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-mustard) 55%, transparent);
+    color: var(--color-espresso);
+  }
+
+  /* Sticky-nav offset for in-page anchors */
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+}
+
+/* Stepped ("notched") pixel corners — the signature card silhouette. */
+@utility pixel-notch {
+  clip-path: polygon(
+    0 6px,
+    3px 6px,
+    3px 3px,
+    6px 3px,
+    6px 0,
+    calc(100% - 6px) 0,
+    calc(100% - 6px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 6px,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    6px calc(100% - 3px),
+    3px calc(100% - 3px),
+    3px calc(100% - 6px),
+    0 calc(100% - 6px)
+  );
+}
+
+@utility pixel-notch-sm {
+  clip-path: polygon(
+    0 4px,
+    2px 4px,
+    2px 2px,
+    4px 2px,
+    4px 0,
+    calc(100% - 4px) 0,
+    calc(100% - 4px) 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) 4px,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 2px) calc(100% - 4px),
+    calc(100% - 2px) calc(100% - 2px),
+    calc(100% - 4px) calc(100% - 2px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    4px calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px calc(100% - 4px),
+    0 calc(100% - 4px)
+  );
+}
+
+/* Fine 1px pixel rule used between pipeline stages and footer blocks. */
+@utility pixel-dotted {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-line) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+@utility pixel-dotted-y {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--color-line) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
