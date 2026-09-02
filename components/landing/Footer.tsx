@@ -22,8 +22,8 @@ export default function Footer() {
               ApplyPilot
             </Link>
             <p className="mt-3 text-[0.9375rem] leading-[1.6] text-espresso/65">
-              Discover jobs, internships and alternance opportunities, then keep
-              every application moving forward in one calm workspace.
+              Track every application, interview and follow-up in one calm
+              workspace — for jobs, internships and alternance alike.
             </p>
           </div>
 

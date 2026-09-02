@@ -24,6 +24,8 @@ import {
   type FieldErrors,
 } from "@/lib/auth-schemas";
 import { describeAuthError } from "./errors";
+import { postAuthDestination, providerErrorDestination } from "./redirect";
+import type { AuthIntent } from "./intents";
 import GoogleMark from "./GoogleMark";
 import type { AuthMode } from "./AuthProvider";
 
@@ -33,6 +35,10 @@ type AuthModalProps = {
   open: boolean;
   mode: AuthMode;
   googleEnabled: boolean;
+  /** Shown immediately on open — e.g. a provider round trip that failed. */
+  initialError?: string | null;
+  /** What the visitor was trying to do; decides where they land afterwards. */
+  intent?: AuthIntent | null;
   onModeChange: (mode: AuthMode) => void;
   onClose: () => void;
   onAuthenticated: () => void | Promise<void>;
@@ -47,6 +53,8 @@ export default function AuthModal({
   open,
   mode,
   googleEnabled,
+  initialError = null,
+  intent = null,
   onModeChange,
   onClose,
   onAuthenticated,
@@ -89,6 +97,8 @@ export default function AuthModal({
           <AuthDialog
             mode={mode}
             googleEnabled={googleEnabled}
+            initialError={initialError}
+            intent={intent}
             onBusyChange={setBusy}
             onModeChange={onModeChange}
             onClose={onClose}
@@ -106,6 +116,8 @@ export default function AuthModal({
 type AuthDialogProps = {
   mode: AuthMode;
   googleEnabled: boolean;
+  initialError: string | null;
+  intent: AuthIntent | null;
   onBusyChange: (busy: boolean) => void;
   onModeChange: (mode: AuthMode) => void;
   onClose: () => void;
@@ -119,6 +131,8 @@ type AuthDialogProps = {
 function AuthDialog({
   mode,
   googleEnabled,
+  initialError,
+  intent,
   onBusyChange,
   onModeChange,
   onClose,
@@ -138,7 +152,9 @@ function AuthDialog({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  // Seeded from `initialError` so a failed provider round trip explains
+  // itself the moment the modal reopens.
+  const [formError, setFormError] = useState<string | null>(initialError);
   const [pending, setPending] = useState<null | "email" | "google">(null);
 
   const isBusy = pending !== null;
@@ -287,12 +303,13 @@ function AuthDialog({
     try {
       // Better Auth owns the whole OAuth exchange. `callbackURL` is where it
       // sends the browser once Google has redirected back to
-      // /api/auth/callback/google, so the user lands on the page they started
-      // from rather than at the site root.
+      // /api/auth/callback/google. It is resolved through
+      // `postAuthDestination()` so the return trip can never land on an auth
+      // route or carry `auth=` back and re-open this modal.
       const { error } = await signIn.social({
         provider: "google",
-        callbackURL: `${window.location.pathname}${window.location.search}`,
-        errorCallbackURL: `${window.location.pathname}?auth_error=google`,
+        callbackURL: postAuthDestination(intent),
+        errorCallbackURL: providerErrorDestination("google", intent),
       });
       if (error) {
         setFormError(

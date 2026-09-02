@@ -17,7 +17,7 @@ export default function HowItWorks() {
             id="how-it-works-heading"
             eyebrow="How it works"
             title="Four steps, then it keeps itself tidy."
-            description="Set your preferences once. ApplyPilot brings the openings to you and keeps every application, interview and follow-up in the same place."
+            description="Add a role once, then move it along as things happen. Every application, interview and follow-up stays in the same place."
           />
         </Reveal>
 

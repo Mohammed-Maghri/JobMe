@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { authClient, useSession } from "@/lib/auth-client";
 import AuthModal from "./AuthModal";
 import {
@@ -18,11 +19,14 @@ import {
   takePersistedIntent,
   type AuthIntent,
 } from "./intents";
+import { postAuthDestination } from "./redirect";
 
 export type AuthMode = "signin" | "signup";
 export type SessionUser = (typeof authClient.$Infer.Session)["user"];
 
 type OpenOptions = {
+  /** Pre-filled form-level error, used when returning from a failed provider. */
+  error?: string;
   /** A protected action to replay once the user is authenticated. */
   intent?: AuthIntent;
 };
@@ -63,19 +67,27 @@ export default function AuthProvider({
   googleEnabled: boolean;
 }) {
   const { data: session, isPending, refetch } = useSession();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<AuthMode>("signin");
   const [readyIntent, setReadyIntent] = useState<AuthIntent | null>(null);
+  const [initialError, setInitialError] = useState<string | null>(null);
 
-  /** Mirrors the persisted intent for the in-page (non-redirect) flows. */
-  const pendingIntent = useRef<AuthIntent | null>(null);
+  /**
+   * The intent for the in-page (non-redirect) flows.
+   *
+   * State rather than a ref because the modal renders from it — the Google
+   * hand-off needs it to build a callback URL before the browser leaves.
+   */
+  const [pendingIntent, setPendingIntent] = useState<AuthIntent | null>(null);
 
   const openAuth = useCallback(
     (next: AuthMode = "signin", options?: OpenOptions) => {
-      pendingIntent.current = options?.intent ?? null;
+      setPendingIntent(options?.intent ?? null);
       // Persisted up front so the Google round trip survives a full page load.
       if (options?.intent) persistIntent(options.intent);
       else clearPersistedIntent();
+      setInitialError(options?.error ?? null);
       setMode(next);
       setIsOpen(true);
     },
@@ -83,8 +95,9 @@ export default function AuthProvider({
   );
 
   const closeAuth = useCallback(() => {
-    pendingIntent.current = null;
+    setPendingIntent(null);
     clearPersistedIntent();
+    setInitialError(null);
     setIsOpen(false);
   }, []);
 
@@ -92,13 +105,37 @@ export default function AuthProvider({
 
   /** Called by the modal after an in-page email sign-in or sign-up. */
   const handleAuthenticated = useCallback(async () => {
-    const intent = pendingIntent.current;
-    pendingIntent.current = null;
+    const intent = pendingIntent;
+    setPendingIntent(null);
     clearPersistedIntent();
+    setInitialError(null);
     setIsOpen(false);
-    await refetch();
+
+    /*
+      A `save-job` intent replays into the feed on the page we are standing on,
+      so that one stays put and its consumer handles it. Everything else moves
+      — leaving somebody on the marketing page after a successful sign-in reads
+      as though nothing happened.
+    */
+    if (intent?.type === "save-job") {
+      // Staying here, so the client-side session has to be brought up to date.
+      await refetch();
+      setReadyIntent(intent);
+      return;
+    }
+
     if (intent) setReadyIntent(intent);
-  }, [refetch]);
+
+    /*
+      Deliberately no `refetch()` before navigating. The destination is
+      server-rendered from the session cookie and mounts a fresh `useSession`,
+      so a refetch here is redundant — and it used to be actively harmful: the
+      in-flight `get-session` request was aborted by the navigation, which
+      Better Auth's client surfaced as an unhandled "unexpected response"
+      rejection on every sign-in.
+    */
+    router.replace(postAuthDestination(intent));
+  }, [pendingIntent, refetch, router]);
 
   /**
    * Google sends the browser to accounts.google.com and back, so on the return
@@ -158,6 +195,8 @@ export default function AuthProvider({
         mode={mode}
         googleEnabled={googleEnabled}
         onModeChange={setMode}
+        initialError={initialError}
+        intent={pendingIntent}
         onClose={closeAuth}
         onAuthenticated={handleAuthenticated}
       />

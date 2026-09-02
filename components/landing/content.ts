@@ -4,13 +4,10 @@ import {
   CalendarCheck,
   ClipboardList,
   Compass,
-  FileCheck2,
   FilePlus2,
   Handshake,
-  Search,
-  SlidersHorizontal,
-  Sparkles,
-  Target,
+  LayoutGrid,
+  PieChart,
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -20,12 +17,22 @@ import type { Tone } from "./tones";
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
 
-export type NavLink = { label: string; href: string };
+export type NavLink = { label: string; href: string; id?: NavId };
 
+/** Identifies the active entry without parsing the URL on the client. */
+export type NavId = "applications";
+
+/** Shown to signed-out visitors: an in-page anchor on the landing page. */
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: "Find jobs", href: "#find-jobs" },
   { label: "Applications", href: "#applications" },
-  { label: "How it works", href: "#how-it-works" },
+] as const;
+
+/**
+ * Shown once signed in. A real route rather than an anchor, so the nav works
+ * from any page.
+ */
+export const AUTHED_NAV_LINKS: readonly NavLink[] = [
+  { label: "Applications", href: "/applications", id: "applications" },
 ] as const;
 
 /* ------------------------------------------------------------------ */
@@ -43,21 +50,15 @@ export type Benefit = {
 
 export const BENEFITS: readonly Benefit[] = [
   {
-    id: "fresh",
-    icon: Search,
-    tone: "terracotta",
-    lines: ["New jobs", "added daily"],
-  },
-  {
-    id: "match",
-    icon: Sparkles,
-    tone: "mustard",
-    lines: ["Matches based", "on your profile"],
-  },
-  {
     id: "track",
-    icon: Bell,
+    icon: ClipboardList,
     tone: "plum",
+    lines: ["Every application", "in one place"],
+  },
+  {
+    id: "follow-up",
+    icon: Bell,
+    tone: "terracotta",
     lines: ["Stay on track", "and follow up"],
     pulse: true,
   },
@@ -79,32 +80,32 @@ export type Feature = {
 
 export const FEATURES: readonly Feature[] = [
   {
-    id: "fresh-opportunities",
-    icon: Search,
-    tone: "terracotta",
-    title: "Fresh opportunities",
-    description:
-      "Discover newly published jobs, internships and alternance opportunities selected around your goals.",
-    linkLabel: "Browse jobs",
-    href: "#find-jobs",
-  },
-  {
-    id: "smart-matching",
-    icon: Target,
-    tone: "sage",
-    title: "Smart matching",
-    description:
-      "Understand why an opportunity fits your skills, experience and preferences before applying.",
-    linkLabel: "See your matches",
-    href: "#find-jobs",
-  },
-  {
-    id: "stay-organised",
-    icon: ClipboardList,
+    id: "one-board",
+    icon: LayoutGrid,
     tone: "plum",
-    title: "Stay organised",
+    title: "One board for everything",
     description:
-      "Track every application, interview and follow-up from one clear workspace.",
+      "Every role you are chasing on a single board, from saved through to offer, with a count on each stage.",
+    linkLabel: "View applications",
+    href: "#applications",
+  },
+  {
+    id: "follow-ups",
+    icon: Bell,
+    tone: "terracotta",
+    title: "Never miss a follow-up",
+    description:
+      "Set a follow-up or interview date and it shows on the card, with anything overdue called out.",
+    linkLabel: "View applications",
+    href: "#applications",
+  },
+  {
+    id: "progress",
+    icon: PieChart,
+    tone: "sage",
+    title: "See where you stand",
+    description:
+      "Totals, interviews, offers and your response rate, counted from your own applications.",
     linkLabel: "View applications",
     href: "#applications",
   },
@@ -181,35 +182,35 @@ export type Step = {
 
 export const STEPS: readonly Step[] = [
   {
-    id: "preferences",
-    title: "Tell us what you want",
+    id: "add",
+    title: "Add an application",
     description:
-      "Choose your roles, location, technologies and preferred contract types.",
-    icon: SlidersHorizontal,
+      "Company, role, contract type and where you found it. Two fields are required; the rest can wait.",
+    icon: FilePlus2,
     tone: "plum",
   },
   {
-    id: "discover",
-    title: "Receive fresh opportunities",
+    id: "move",
+    title: "Move it along",
     description:
-      "See newly published positions matching your search every day.",
+      "Drag it between stages, or pick a status from the card. Every change is recorded.",
     icon: Compass,
     tone: "terracotta",
   },
   {
-    id: "prepare",
-    title: "Prepare your application",
+    id: "remind",
+    title: "Set a follow-up",
     description:
-      "Save the role, review your match and organise the documents you need.",
-    icon: FileCheck2,
+      "Add the date you plan to chase it, or an interview date, and the card will remind you.",
+    icon: Bell,
     tone: "mustard",
   },
   {
-    id: "track",
-    title: "Track every step",
+    id: "review",
+    title: "See how it is going",
     description:
-      "Manage follow-ups, interviews and offers from one workspace.",
-    icon: ClipboardList,
+      "Filter by stage, source or contract type, and read your response rate off the top of the board.",
+    icon: PieChart,
     tone: "sage",
   },
 ] as const;
@@ -238,7 +239,6 @@ export type Job = {
   postedLabel: string;
   /** ISO date backing the human-readable posted label. */
   postedAt: string;
-  match: number;
   filters: readonly string[];
 };
 
@@ -251,7 +251,6 @@ export const JOBS: readonly Job[] = [
     contract: "Alternance · 12 months",
     postedLabel: "Posted 2 days ago",
     postedAt: "2026-08-30",
-    match: 94,
     filters: ["alternance", "paris", "software-engineering", "junior"],
   },
   {
@@ -262,7 +261,6 @@ export const JOBS: readonly Job[] = [
     contract: "Internship · 6 months",
     postedLabel: "Posted 1 day ago",
     postedAt: "2026-08-31",
-    match: 88,
     filters: ["internship", "remote", "software-engineering"],
   },
   {
@@ -273,7 +271,6 @@ export const JOBS: readonly Job[] = [
     contract: "CDI · Full-time",
     postedLabel: "Posted 4 days ago",
     postedAt: "2026-08-28",
-    match: 79,
     filters: ["junior", "paris"],
   },
 ] as const;
@@ -291,9 +288,9 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
   {
     heading: "Product",
     links: [
-      { label: "Find jobs", href: "#find-jobs" },
-      { label: "Applications", href: "#applications" },
-      { label: "How it works", href: "#how-it-works" },
+      { label: "Find jobs", href: "/?browse=1#find-jobs" },
+      { label: "Applications", href: "/applications" },
+      { label: "How it works", href: "/?browse=1#how-it-works" },
     ],
   },
   {

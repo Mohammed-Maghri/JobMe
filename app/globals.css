@@ -11,6 +11,15 @@
   --color-mustard: #d5a340;
   --color-line: #d8c7b4;
 
+  /* Status accents. The four brand colours above cannot cover seven pipeline
+     stages without repeating, and a board where Applied and Rejected share a
+     colour is worse than no colour at all. These stay within the warm,
+     muted range of the palette. */
+  --color-denim: #4a6fa5;
+  --color-fern: #4f7a4a;
+  --color-brick: #a63f3f;
+  --color-ash: #8a7c72;
+
   /* Typography */
   --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;

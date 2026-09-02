@@ -35,9 +35,11 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  sessions  Session[]
-  accounts  Account[]
-  savedJobs SavedJob[]
+  sessions          Session[]
+  accounts          Account[]
+  savedJobs         SavedJob[]
+  applications      Application[]
+  applicationEvents ApplicationEvent[]
 
   @@map("users")
 }
@@ -117,4 +119,100 @@ model SavedJob {
   @@unique([userId, jobId])
   @@index([userId])
   @@map("saved_jobs")
+}
+
+// ---------------------------------------------------------------------------
+// Application tracker
+// ---------------------------------------------------------------------------
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  REJECTED
+  WITHDRAWN
+}
+
+enum WorkMode {
+  ONSITE
+  HYBRID
+  REMOTE
+}
+
+/// Contract types, chosen from a list so the board can filter on them.
+/// Labels shown in the UI carry the French equivalent where there is one.
+enum EmploymentType {
+  FULL_TIME
+  FIXED_TERM
+  APPRENTICESHIP
+  INTERNSHIP
+  FREELANCE
+  PART_TIME
+}
+
+/// Where a row came from. `APPLYPILOT` means it started life in the job feed.
+enum ApplicationSource {
+  MANUAL
+  APPLYPILOT
+}
+
+/// One opportunity the user is tracking, from shortlist through to offer.
+///
+/// Every query in `lib/applications/` filters on `userId`; the value always
+/// comes from the server-side session, never from the browser.
+model Application {
+  id             String            @id @default(cuid())
+  userId         String
+  companyName    String
+  companyDomain  String?
+  companyLogoUrl String?
+  jobTitle       String
+  jobUrl         String?
+  location       String?
+  workMode       WorkMode?
+  employmentType EmploymentType?
+  salaryMin      Int?
+  salaryMax      Int?
+  salaryCurrency String?
+  status         ApplicationStatus @default(SAVED)
+  source         ApplicationSource @default(MANUAL)
+  contactName    String?
+  contactEmail   String?
+  appliedAt      DateTime?
+  interviewAt    DateTime?
+  followUpAt     DateTime?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  user   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events ApplicationEvent[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([userId, appliedAt])
+  @@index([userId, employmentType])
+  @@map("applications")
+}
+
+/// Append-only history so a status can be audited and never silently rewound.
+model ApplicationEvent {
+  id            String             @id @default(cuid())
+  applicationId String
+  userId        String
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  /// "user", "gmail-import", ... — who caused the move.
+  actor         String             @default("user")
+  note          String?
+  createdAt     DateTime           @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, createdAt])
+  @@index([userId])
+  @@map("application_events")
 }

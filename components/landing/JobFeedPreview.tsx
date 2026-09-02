@@ -48,9 +48,20 @@ export default function JobFeedPreview() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    void listSavedJobs().then((result) => {
-      if (!cancelled && result.ok) setSavedJobs(result.savedJobIds);
-    });
+    /*
+      Signing in on this page immediately navigates to the tracker, which
+      aborts this request mid-flight. An abort is not a failure, and without a
+      `catch` the rejection surfaced as an unhandled error on every sign-in.
+      A genuine failure is equally non-fatal: the shortlist just stays empty
+      until the next load.
+    */
+    void listSavedJobs()
+      .then((result) => {
+        if (!cancelled && result.ok) setSavedJobs(result.savedJobIds);
+      })
+      .catch(() => {
+        /* Cancelled by navigation, or unreachable. Nothing to show either way. */
+      });
     return () => {
       cancelled = true;
     };
@@ -109,9 +120,9 @@ export default function JobFeedPreview() {
         <Reveal>
           <SectionHeading
             id="find-jobs-heading"
-            eyebrow="Today's opportunities"
-            title="A feed that already knows what you are looking for."
-            description="Filter by contract, seniority and location, then save what is worth a proper application. This is a preview of the live feed."
+            eyebrow="Saving a role"
+            title="Save a role and it lands on your board."
+            description="A sample of roles, to show what saving does. Save one and it appears in the Saved column of your board, ready to move along."
           />
         </Reveal>
 

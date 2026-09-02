@@ -51,3 +51,16 @@ export function describeAuthError(
   }
   return "Something went wrong. Try again.";
 }
+
+/**
+ * A provider sign-in that came back without a session.
+ *
+ * Better Auth sends the browser to `errorCallbackURL` for anything that goes
+ * wrong at the provider — a cancelled consent screen, a rejected account, a
+ * misconfigured client. The cause is not in the URL, so the copy stays
+ * accurate rather than guessing which one it was.
+ */
+export function describeProviderError(provider: string): string {
+  const name = provider === "google" ? "Google" : provider;
+  return `${name} sign-in did not complete, so you are not signed in. Try again, or use your email and password.`;
+}

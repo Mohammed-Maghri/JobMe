@@ -12,7 +12,6 @@ import {
   Loader2,
   MapPin,
 } from "lucide-react";
-import MatchMeter from "./MatchMeter";
 import type { Job } from "./content";
 
 type JobCardProps = {
@@ -64,7 +63,6 @@ export default function JobCard({
         </div>
 
         <div className="flex flex-col gap-3 border-t-2 border-line/60 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5 lg:shrink-0 lg:border-t-0 lg:pt-0">
-          <MatchMeter value={job.match} className="shrink-0" />
 
           <div className="flex flex-wrap items-center gap-2.5">
             <motion.button

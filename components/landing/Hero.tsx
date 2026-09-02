@@ -45,7 +45,7 @@ export default function Hero() {
             className="flex items-center gap-2.5 font-display text-[0.8125rem] font-bold tracking-[0.16em] text-plum uppercase sm:text-sm"
           >
             <PixelSparkle size={14} color="var(--color-terracotta)" twinkle />
-            A smarter job search
+            Your application tracker
           </motion.p>
 
           <motion.h1
@@ -60,16 +60,16 @@ export default function Hero() {
             {...rise(0.12)}
             className="mt-5 max-w-[30rem] text-lead text-espresso/75"
           >
-            Fresh jobs, relevant matches, and every application organized in one
-            calm workspace.
+            Keep every application, interview and follow-up in one calm
+            workspace, from saved through to offer.
           </motion.p>
 
           <motion.div
             {...rise(0.18)}
             className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
           >
-            <PixelButton href="#find-jobs" size="lg" className="w-full sm:w-auto">
-              Explore today&rsquo;s jobs
+            <PixelButton href="#applications" size="lg" className="w-full sm:w-auto">
+              See how tracking works
             </PixelButton>
             <PixelButton
               href="#how-it-works"

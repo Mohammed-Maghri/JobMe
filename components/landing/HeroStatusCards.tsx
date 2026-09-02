@@ -1,8 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays } from "lucide-react";
-import MatchRing from "./MatchRing";
+import { BookmarkCheck, CalendarDays } from "lucide-react";
 import PixelSparkle from "./PixelSparkle";
 import { EASE_OUT } from "./motion";
 
@@ -41,20 +40,27 @@ export default function HeroStatusCards() {
 
   return (
     <div className="mt-4 grid gap-3 sm:pointer-events-none sm:absolute sm:inset-0 sm:mt-0 sm:block">
-      {/* Match card */}
+      {/* Saved-role card */}
       <motion.div
         {...entrance(0.45)}
         className="sm:absolute sm:top-4 sm:-right-2 sm:w-[202px] xl:top-6 xl:-right-3 xl:w-[248px]"
       >
         <motion.div {...float(0)} className={CARD_BASE}>
           <div className="flex items-center gap-2.5 p-3">
-            <MatchRing value={92} size={56} />
+            <span className="pixel-notch-sm inline-flex size-11 shrink-0 items-center justify-center border-2 border-plum/40 bg-plum/10">
+              <BookmarkCheck
+                size={20}
+                strokeWidth={2}
+                className="text-plum"
+                aria-hidden="true"
+              />
+            </span>
             <div className="min-w-0">
               <p className="font-display text-[0.9375rem] leading-tight font-bold text-espresso">
-                Senior Product Manager
+                Product Engineer
               </p>
               <p className="mt-1 truncate text-[0.8125rem] text-espresso/60">
-                Acme Atelier
+                Saved &middot; Qonto
               </p>
             </div>
           </div>

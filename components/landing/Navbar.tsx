@@ -7,18 +7,29 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import PixelPlane from "./PixelPlane";
 import PixelButton from "./PixelButton";
-import { NAV_LINKS } from "./content";
+import { AUTHED_NAV_LINKS, NAV_LINKS, type NavId } from "./content";
 import { useAuth } from "@/components/auth/AuthProvider";
 import UserMenu from "@/components/auth/UserMenu";
 import { EASE_OUT } from "./motion";
 import { CONTAINER } from "./layout";
 
-export default function Navbar() {
+/**
+ * `active` is supplied by the page rather than derived from the URL. Reading
+ * `useSearchParams()` here would opt the statically rendered landing page into
+ * dynamic rendering, which the marketing page cannot afford.
+ */
+export default function Navbar({ active }: { active?: NavId } = {}) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const { openAuth, user, isSessionPending } = useAuth();
+  /**
+   * Signed-in visitors get the tracker as a real route; signed-out visitors
+   * get the matching in-page anchor on the landing page.
+   */
+  const links = user ? AUTHED_NAV_LINKS : NAV_LINKS;
+  const isCurrent = (id: NavId | undefined) => Boolean(id) && id === active;
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -106,16 +117,24 @@ export default function Navbar() {
 
         {/* Desktop navigation */}
         <ul className="ml-auto hidden items-center gap-1 lg:flex lg:gap-2">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="inline-flex min-h-11 items-center rounded-[4px] px-3 text-[0.9375rem] font-medium text-espresso/80 transition-colors hover:text-plum lg:px-4"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
+          {links.map((link) => {
+            const current = isCurrent(link.id);
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  aria-current={current ? "page" : undefined}
+                  className={`inline-flex min-h-11 items-center rounded-[4px] border-b-2 px-3 text-[0.9375rem] font-medium transition-colors lg:px-4 ${
+                    current
+                      ? "border-plum font-semibold text-plum"
+                      : "border-transparent text-espresso/80 hover:text-plum"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="ml-auto hidden items-center gap-2 lg:ml-6 lg:flex lg:gap-3">
@@ -172,17 +191,33 @@ export default function Navbar() {
             className="overflow-hidden border-t-2 border-line bg-surface lg:hidden"
           >
             <ul className={`${CONTAINER} flex flex-col gap-1 py-4`}>
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    onClick={(event) => selectMobileLink(event, link.href)}
-                    className="flex min-h-12 items-center rounded-[4px] border-b border-line/70 px-2 text-base font-medium text-espresso"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              {links.map((link) => {
+                const current = isCurrent(link.id);
+                return (
+                  <li key={link.href}>
+                    {link.href.startsWith("#") ? (
+                      <a
+                        href={link.href}
+                        onClick={(event) => selectMobileLink(event, link.href)}
+                        className="flex min-h-12 items-center rounded-[4px] border-b border-line/70 px-2 text-base font-medium text-espresso"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        onClick={close}
+                        aria-current={current ? "page" : undefined}
+                        className={`flex min-h-12 items-center rounded-[4px] border-b border-line/70 px-2 text-base font-medium ${
+                          current ? "font-semibold text-plum" : "text-espresso"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
               {user ? (
                 <li className="pt-3">
                   <UserMenu compact />

@@ -5,6 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { prisma } from "./prisma";
 import { isGoogleConfigured, serverEnv } from "./env";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./auth-schemas";
+import { COOKIE_PREFIX } from "./auth-shared";
 
 /**
  * Better Auth server instance — the single source of truth for sessions.
@@ -93,7 +94,7 @@ export const auth = betterAuth({
      * the base URL) in development so localhost still works over plain HTTP.
      */
     useSecureCookies: serverEnv.betterAuthUrl.startsWith("https://"),
-    cookiePrefix: "applypilot",
+    cookiePrefix: COOKIE_PREFIX,
   },
 
   trustedOrigins: [serverEnv.betterAuthUrl],

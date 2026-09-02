@@ -19,23 +19,23 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://applypilot.example"),
   title: {
-    default: "ApplyPilot — Find work that fits you",
+    default: "ApplyPilot — Track every job application",
     template: "%s · ApplyPilot",
   },
   description:
-    "Fresh jobs, relevant matches, and every application organized in one calm workspace. Discover jobs, internships and alternance opportunities, then track each application through to the offer.",
+    "Track every job application in one calm workspace: stages, interview and follow-up dates, contract types and your response rate, from saved through to offer.",
   applicationName: "ApplyPilot",
   keywords: [
-    "job search",
+    "application tracker",
+    "job application tracking",
     "internships",
     "alternance",
-    "application tracker",
-    "job matching",
+    "interview tracker",
   ],
   openGraph: {
-    title: "ApplyPilot — Find work that fits you",
+    title: "ApplyPilot — Track every job application",
     description:
-      "Fresh jobs, relevant matches, and every application organized in one calm workspace.",
+      "Track every job application in one calm workspace, from saved through to offer.",
     siteName: "ApplyPilot",
     type: "website",
   },

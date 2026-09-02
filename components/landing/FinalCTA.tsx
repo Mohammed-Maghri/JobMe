@@ -39,7 +39,8 @@ export default function FinalCTA() {
             Your next opportunity should not get lost in another spreadsheet.
           </h2>
           <p className="mx-auto mt-5 max-w-[34rem] text-[1.0625rem] leading-[1.6] text-surface/80">
-            Discover relevant jobs and keep every application moving forward.
+            Keep every application, interview and follow-up moving forward in
+            one place.
           </p>
           <div className="mt-8 flex justify-center">
             <AuthTriggerButton
@@ -48,7 +49,7 @@ export default function FinalCTA() {
               size="lg"
               className="w-full sm:w-auto"
             >
-              Start your search
+              Start tracking
               <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
             </AuthTriggerButton>
           </div>
